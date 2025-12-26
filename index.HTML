@@ -1,0 +1,528 @@
+<!-- /* DIREITOS RESERVADOS: Eng. José Divino Prado da Lapa (jdp000000000160620) */ -->
+<!-- DIREITOS RESERVADOS: Sr. José Divino Prado da Lapa - Engenheiro Sênior (jdp000000000160620) -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#000000">
+    <title>JDP System v24.0</title>
+    <style>
+        /* --- CORE SYSTEM --- */
+        :root { --neon: #00ffcc; --bg: #000; --panel-bg: #121212; --whatsapp: #25D366; --danger: #ff3333; --client-color: #ff00ff; --brand-color: #FFD700; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; user-select: none; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: #fff; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+
+        /* --- LAYERS --- */
+        .layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; transition: 0.3s ease; }
+        .hidden { opacity: 0; pointer-events: none; z-index: -1; }
+
+        /* --- 1. LOGIN CLIENTE --- */
+        #login-layer { z-index: 200; background: #050505; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .login-box { width: 85%; max-width: 320px; text-align: center; }
+        .input-field { width: 100%; padding: 15px; margin: 8px 0; background: #1a1a1a; border: 1px solid #333; color: #fff; text-align: center; border-radius: 8px; outline: none; font-size: 16px; }
+        .btn-enter { width: 100%; padding: 15px; background: var(--neon); color: #000; font-weight: bold; border: none; border-radius: 8px; margin-top: 10px; font-size: 14px; text-transform: uppercase; }
+
+        /* --- 2. PLAYER PRINCIPAL --- */
+        #player-layer { z-index: 100; position: relative; }
+
+        /* AD BOX (AUMENTADO E CENTRALIZADO) */
+        .ad-container {
+            position: absolute; 
+            top: 40px; /* Distância do topo */
+            left: 50%; 
+            transform: translateX(-50%); /* Centraliza horizontalmente */
+            width: 300px; /* LARGURA AUMENTADA */
+            height: 300px; /* ALTURA AUMENTADA */
+            background: #0a0a0a; 
+            border: 2px dashed #333;
+            border-radius: 20px; 
+            overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 10; 
+            box-shadow: 0 10px 40px rgba(0,0,0,0.7);
+        }
+        .ad-video { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+        .ad-placeholder { font-size: 14px; color: #444; text-align: center; font-weight: bold; letter-spacing: 1px; }
+
+        /* CONTROLES CENTRAIS (AJUSTADO PARA BAIXO) */
+        .center-stage { 
+            position: absolute; 
+            top: 65%; /* Movido para baixo para não bater no quadrado grande */
+            left: 50%; 
+            transform: translate(-50%, -50%); 
+            display: flex; flex-direction: column; align-items: center; width: 100%; 
+        }
+        
+        /* LETREIRO DONY PRODUÇÕES */
+        .brand-title {
+            color: var(--brand-color);
+            font-size: 28px;
+            font-weight: 900;
+            text-transform: uppercase;
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+            letter-spacing: 2px;
+            line-height: 1.2;
+            width: 90%;
+        }
+
+        /* INFO DA FAIXA (OCULTO) */
+        .track-info-display { display: none; }
+        
+        .play-circle {
+            width: 130px; height: 130px; border-radius: 50%;
+            background: radial-gradient(circle, #1a1a1a 0%, #000 100%);
+            border: 2px solid var(--neon); box-shadow: 0 0 40px rgba(0, 255, 204, 0.2);
+            display: flex; align-items: center; justify-content: center; margin-bottom: 20px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .play-icon { width: 55px; height: 55px; fill: var(--neon); }
+
+        /* BOTÃO M (CENTRALIZADO) */
+        .btn-m { 
+            width: 50px; height: 50px; border-radius: 50%; 
+            background: #222; border: 2px solid var(--client-color); color: var(--client-color); 
+            font-weight: 900; font-size: 18px; display: flex; align-items: center; justify-content: center; 
+            box-shadow: 0 0 15px rgba(255, 0, 255, 0.3); cursor: pointer; 
+        }
+        .btn-m:active { transform: scale(0.95); background: var(--client-color); color: #000; }
+
+        /* BOTÃO SUPORTE (RODAPÉ) */
+        .btn-support { 
+            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+            background: var(--whatsapp); color: #fff; padding: 12px 30px; border-radius: 30px; 
+            text-decoration: none; font-weight: bold; font-size: 14px; display: flex; align-items: center; gap: 10px;
+            box-shadow: 0 5px 20px rgba(37, 211, 102, 0.4);
+        }
+
+        .ghost-zone { position: absolute; top: 10%; bottom: 10%; right: 0; width: 80px; background: transparent; z-index: 150; }
+
+        /* --- 3. GATEKEEPER (LOGIN DEV) --- */
+        #dev-auth-layer { z-index: 9999; background: rgba(0,0,0,0.98); display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .dev-title { color: var(--neon); font-size: 16px; margin-bottom: 20px; letter-spacing: 1px; font-weight: 900; }
+        .password-container { position: relative; width: 100%; }
+        .toggle-password { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #888; font-size: 12px; cursor: pointer; padding: 5px; }
+
+        /* --- 4. PAINEL MESTRE (DEV) --- */
+        #dev-panel {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 95%;
+            background: var(--panel-bg); border-top: 4px solid var(--neon);
+            border-radius: 20px 20px 0 0; z-index: 500;
+            transform: translateY(110%); transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+            display: flex; flex-direction: column; box-shadow: 0 -10px 50px rgba(0,0,0,0.9);
+        }
+
+        /* --- 5. PAINEL CLIENTE --- */
+        #client-panel {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 70%;
+            background: #1a001a; border-top: 4px solid var(--client-color);
+            border-radius: 20px 20px 0 0; z-index: 450;
+            transform: translateY(110%); transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+            display: flex; flex-direction: column; box-shadow: 0 -10px 50px rgba(255,0,255,0.3);
+        }
+
+        /* ESTILOS COMUNS */
+        .panel-header { padding: 20px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.5); border-radius: 20px 20px 0 0; }
+        .panel-content { flex: 1; overflow-y: auto; padding: 20px; }
+        .dash-card { background: #1a1a1a; border: 1px solid #333; border-radius: 10px; padding: 15px; margin-bottom: 15px; }
+        .dash-title { color: var(--neon); font-size: 11px; font-weight: bold; text-transform: uppercase; margin-bottom: 10px; display: flex; justify-content: space-between; }
+        .action-btn { background: #252525; color: #fff; border: 1px solid #444; padding: 12px; width: 100%; border-radius: 6px; font-size: 12px; font-weight: bold; margin-top: 5px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn-danger { background: #330000; border-color: var(--danger); color: var(--danger); }
+        .file-list { max-height: 200px; overflow-y: auto; margin-top: 10px; background: #000; padding: 5px; border-radius: 5px; }
+        .file-item { padding: 8px; border-bottom: 1px solid #222; font-size: 11px; color: #888; display: flex; justify-content: space-between; align-items: center; }
+        .btn-trash { background: none; border: none; color: var(--danger); cursor: pointer; font-size: 14px; padding: 5px; }
+        .stat-row { display: flex; justify-content: space-between; font-size: 13px; color: #ccc; margin-bottom: 5px; border-bottom: 1px solid #222; padding-bottom: 5px; }
+        .stat-val { font-family: monospace; color: #fff; }
+        .progress-bg { width: 100%; height: 6px; background: #333; border-radius: 3px; margin-top: 5px; }
+        .progress-fill { height: 100%; background: var(--neon); border-radius: 3px; width: 0%; transition: width 1s; }
+
+    </style>
+</head>
+<body>
+
+    <!-- 1. LOGIN CLIENTE -->
+    <div id="login-layer" class="layer">
+        <div class="login-box">
+            <h2 style="color: var(--neon); margin-bottom: 20px;">JDP CLIENT ACCESS</h2>
+            <input type="text" id="clientUser" class="input-field" placeholder="Usuário" value="Client">
+            <input type="password" id="clientPass" class="input-field" placeholder="Senha">
+            <button class="btn-enter" onclick="loginCliente()">ENTRAR</button>
+            <p id="login-msg" style="color: red; font-size: 11px; margin-top: 10px;"></p>
+        </div>
+    </div>
+
+    <!-- 2. PLAYER -->
+    <div id="player-layer" class="layer hidden">
+        
+        <!-- QUADRADO VAZIO (AGORA MAIOR E CENTRALIZADO) -->
+        <div class="ad-container" id="adBox">
+            <div class="ad-placeholder">ESPAÇO<br>PUBLICITÁRIO<br>JDP</div>
+            <video id="adVideoPlayer" class="ad-video" loop muted playsinline autoplay style="display:none"></video>
+        </div>
+        
+        <div class="center-stage">
+            
+            <!-- LETREIRO DONY PRODUÇÕES -->
+            <div class="brand-title">Dony_produções eventos</div>
+
+            <!-- INFO DA FAIXA (OCULTO) -->
+            <div class="track-info-display">
+                <div class="track-name-main" id="mainTrackName">Aguardando Mídia...</div>
+                <div class="track-meta-main" id="mainTrackMeta">SISTEMA JDP</div>
+            </div>
+
+            <div class="play-circle" id="playCircle" onclick="togglePlay()">
+                <svg class="play-icon" id="iconPlay" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                <svg class="play-icon" id="iconPause" style="display:none" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+            </div>
+
+            <!-- BOTÃO M (ABRE PAINEL CLIENTE) -->
+            <div class="btn-m" onclick="abrirPainelCliente()">M</div>
+        </div>
+
+        <!-- BOTÃO SUPORTE (RODAPÉ) -->
+        <a href="https://wa.me/qr/KPVQB2E4IP23O1" target="_blank" class="btn-support">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.017-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+            SUPORTE
+        </a>
+        
+        <div class="ghost-zone" onclick="handleGhostTap()"></div>
+    </div>
+
+    <!-- 3. GATEKEEPER (LOGIN DEV) -->
+    <div id="dev-auth-layer" class="layer hidden">
+        <div class="login-box">
+            <div class="dev-title">PAINEL DO ENGENHEIRO</div>
+            <input type="email" id="devUser" class="input-field" placeholder="Email" autocomplete="off">
+            <div class="password-container">
+                <input type="password" id="devPass" class="input-field" placeholder="Chave de Segurança">
+                <span class="toggle-password" onclick="togglePassVisibility()">👁️</span>
+            </div>
+            <button class="btn-enter" style="background:#fff; color:#000" onclick="loginDev()">ACESSAR SISTEMA</button>
+            <button onclick="fecharDevAuth()" style="background:none; border:none; color:#666; margin-top:15px; font-size:10px;">CANCELAR</button>
+        </div>
+    </div>
+
+    <!-- 4. PAINEL MESTRE (DEV) -->
+    <div id="dev-panel">
+        <div class="panel-header">
+            <div>
+                <span style="color: var(--neon); font-weight: 900; font-size: 16px;">JDP MASTER CONTROL</span>
+                <div style="font-size: 10px; color: #666;">Eng. José Divino Prado da Lapa</div>
+            </div>
+            <button onclick="fecharPainel()" style="background:none; border:none; color:#fff; font-size: 24px;">&times;</button>
+        </div>
+
+        <div class="panel-content">
+            <div class="dash-card">
+                <div class="dash-title">
+                    <span>LICENÇA DO CLIENTE</span>
+                    <span id="status-badge" style="color: #0f0;">ATIVO</span>
+                </div>
+                <div class="stat-row"><span>Data de Início:</span> <span class="stat-val" id="date-start">--/--/--</span></div>
+                <div class="stat-row"><span>Data de Expiração:</span> <span class="stat-val" id="date-end">--/--/--</span></div>
+                <div class="stat-row"><span>Dias Restantes:</span> <span class="stat-val" id="days-left">0</span></div>
+                <div class="progress-bg"><div class="progress-fill" id="license-bar"></div></div>
+            </div>
+
+            <div class="dash-card">
+                <div class="dash-title">PUBLICIDADE (VÍDEO MUDO)</div>
+                <input type="file" id="adInput" accept="video/*" style="display:none" onchange="carregarAd(this)">
+                <button class="action-btn" onclick="document.getElementById('adInput').click()">CARREGAR MP4</button>
+            </div>
+
+            <div class="dash-card">
+                <div class="dash-title">
+                    <span>📂 CARTÃO 2 (SISTEMA)</span>
+                    <span class="stat-val" id="track-count">0 Faixas</span>
+                </div>
+                <input type="file" id="systemMusicInput" accept="audio/*" multiple style="display:none" onchange="carregarMusicasSistema(this)">
+                <div style="display: flex; gap: 10px;">
+                    <button class="action-btn" onclick="document.getElementById('systemMusicInput').click()">ADICIONAR</button>
+                    <button class="action-btn btn-danger" onclick="limparPlaylistSistema()">LIMPAR</button>
+                </div>
+                <div class="file-list" id="playlistContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. PAINEL CLIENTE -->
+    <div id="client-panel">
+        <div class="panel-header" style="background: #330033;">
+            <div>
+                <span style="color: var(--client-color); font-weight: 900; font-size: 16px;">MINHAS MÚSICAS</span>
+                <div style="font-size: 10px; color: #aaa;">Cartão 1 (Pessoal)</div>
+            </div>
+            <button onclick="fecharPainelCliente()" style="background:none; border:none; color:#fff; font-size: 24px;">&times;</button>
+        </div>
+
+        <div class="panel-content">
+            <div class="dash-card" style="border-color: var(--client-color);">
+                <div class="dash-title" style="color: var(--client-color);">GERENCIAR FAIXAS (MÁX 20)</div>
+                <input type="file" id="clientMusicInput" accept="audio/*" multiple style="display:none" onchange="carregarMusicasCliente(this)">
+                
+                <button class="action-btn" style="border-color: var(--client-color); color: var(--client-color);" onclick="document.getElementById('clientMusicInput').click()">
+                    + ADICIONAR MÚSICAS
+                </button>
+
+                <div class="file-list" id="clientPlaylistContainer">
+                    <div style="text-align:center; color:#666; font-size:10px; padding:10px;">VAZIO</div>
+                </div>
+            </div>
+            
+            <div style="font-size: 11px; color: #888; text-align: center; margin-top: 10px;">
+                SUAS MÚSICAS TOCARÃO AUTOMATICAMENTE APÓS A FAIXA "DJBOB".
+            </div>
+        </div>
+    </div>
+
+    <audio id="audioEngine"></audio>
+
+    <script>
+        /* --- JDP MASTER ENGINE v24.0 --- */
+
+        // CREDENCIAIS
+        const CLIENT_AUTH = { u: 'Client', p: '160620' };
+        const DEV_AUTH = { u: 'josedivinopradodalapa@gmail.com', p: '160620' };
+        const STORAGE_KEY = 'JDP_SESSION_V24';
+        const EXPIRATION_DAYS = 30;
+
+        // ARMAZENAMENTO DUAL
+        let systemPlaylist = []; // Cartão 2
+        let clientPlaylist = []; // Cartão 1
+        let activeSource = 'SYSTEM'; // 'SYSTEM' ou 'CLIENT'
+        
+        // ESTADO PLAYER
+        let currentIndex = 0;
+        let isPlaying = false;
+        let tapCount = 0;
+        let tapTimer = null;
+
+        // --- INICIALIZAÇÃO ---
+        window.onload = () => { verificarSessao(); };
+
+        function verificarSessao() {
+            const data = localStorage.getItem(STORAGE_KEY);
+            if (data) {
+                const session = JSON.parse(data);
+                const now = new Date().getTime();
+                if (now < session.expiry) iniciarSistema();
+                else { localStorage.removeItem(STORAGE_KEY); document.getElementById('login-msg').innerText = "LICENÇA EXPIRADA."; }
+            }
+        }
+
+        function loginCliente() {
+            const u = document.getElementById('clientUser').value;
+            const p = document.getElementById('clientPass').value;
+            if (u === CLIENT_AUTH.u && p === CLIENT_AUTH.p) {
+                const now = new Date();
+                const expiryTime = now.getTime() + (EXPIRATION_DAYS * 24 * 60 * 60 * 1000);
+                const sessionData = { status: 'GRANTED', start: now.getTime(), expiry: expiryTime };
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(sessionData));
+                iniciarSistema();
+            } else { document.getElementById('login-msg').innerText = "DADOS INCORRETOS"; }
+        }
+
+        function iniciarSistema() {
+            document.getElementById('login-layer').classList.add('hidden');
+            document.getElementById('player-layer').classList.remove('hidden');
+            atualizarVisualPlayer();
+        }
+
+        // --- GESTÃO DE PAINÉIS ---
+        function abrirPainelCliente() {
+            renderizarPlaylistCliente();
+            document.getElementById('client-panel').style.transform = "translateY(0)";
+        }
+        function fecharPainelCliente() { document.getElementById('client-panel').style.transform = "translateY(110%)"; }
+
+        function handleGhostTap() {
+            tapCount++; clearTimeout(tapTimer); tapTimer = setTimeout(() => { tapCount = 0; }, 1000);
+            if (tapCount === 4) { tapCount = 0; document.getElementById('dev-auth-layer').classList.remove('hidden'); }
+        }
+        function fecharDevAuth() { document.getElementById('dev-auth-layer').classList.add('hidden'); }
+        function togglePassVisibility() {
+            const passInput = document.getElementById('devPass');
+            passInput.type = (passInput.type === "password") ? "text" : "password";
+        }
+        function loginDev() {
+            const u = document.getElementById('devUser').value.trim().toLowerCase();
+            const p = document.getElementById('devPass').value.trim();
+            if (u === DEV_AUTH.u.toLowerCase() && p === DEV_AUTH.p) { fecharDevAuth(); abrirPainelMestre(); }
+            else { alert("Credenciais Inválidas."); }
+        }
+        function abrirPainelMestre() { 
+            atualizarDashboard();
+            document.getElementById('dev-panel').style.transform = "translateY(0)"; 
+        }
+        function fecharPainel() { document.getElementById('dev-panel').style.transform = "translateY(110%)"; }
+
+        // --- DASHBOARD ---
+        function atualizarDashboard() {
+            const data = localStorage.getItem(STORAGE_KEY);
+            if (data) {
+                const session = JSON.parse(data);
+                const now = new Date().getTime();
+                const start = new Date(session.start);
+                const end = new Date(session.expiry);
+                
+                document.getElementById('date-start').innerText = start.toLocaleDateString();
+                document.getElementById('date-end').innerText = end.toLocaleDateString();
+                
+                const diffTime = Math.abs(end - now);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+                document.getElementById('days-left').innerText = diffDays;
+                const percent = 100 - (((now - start) / (end - start)) * 100);
+                document.getElementById('license-bar').style.width = `${Math.max(0, percent)}%`;
+            }
+        }
+
+        // --- MÍDIA (VÍDEO) ---
+        function carregarAd(input) {
+            const file = input.files[0];
+            if (file) {
+                const url = URL.createObjectURL(file);
+                const video = document.getElementById('adVideoPlayer');
+                video.src = url; video.muted = true; video.volume = 0;
+                video.style.display = 'block'; document.querySelector('.ad-placeholder').style.display = 'none';
+                video.play().catch(e => console.log("Autoplay block"));
+            }
+        }
+
+        // --- MÍDIA (SISTEMA) ---
+        function carregarMusicasSistema(input) {
+            const files = input.files;
+            if (files.length > 0) {
+                for (let i = 0; i < files.length; i++) {
+                    systemPlaylist.push({ name: files[i].name, url: URL.createObjectURL(files[i]) });
+                }
+                renderizarPlaylistSistema();
+                document.getElementById('track-count').innerText = `${systemPlaylist.length} Faixas`;
+                if(activeSource === 'SYSTEM') atualizarVisualPlayer();
+            }
+        }
+        function limparPlaylistSistema() {
+            if(confirm("Limpar Cartão 2 (Sistema)?")) {
+                systemPlaylist = []; renderizarPlaylistSistema();
+                document.getElementById('track-count').innerText = "0 Faixas";
+            }
+        }
+        function renderizarPlaylistSistema() {
+            const container = document.getElementById('playlistContainer'); container.innerHTML = '';
+            systemPlaylist.forEach((track, idx) => {
+                const div = document.createElement('div'); div.className = 'file-item';
+                div.innerText = `${idx + 1}. ${track.name}`; container.appendChild(div);
+            });
+        }
+
+        // --- MÍDIA (CLIENTE) ---
+        function carregarMusicasCliente(input) {
+            const files = input.files;
+            if (clientPlaylist.length + files.length > 20) { alert("Limite de 20 músicas excedido."); return; }
+            for (let i = 0; i < files.length; i++) {
+                clientPlaylist.push({ name: files[i].name, url: URL.createObjectURL(files[i]) });
+            }
+            renderizarPlaylistCliente();
+            alert("Músicas adicionadas à fila de espera do DJBOB.");
+        }
+        function excluirMusicaCliente(index) {
+            if(confirm("Excluir esta música?")) {
+                clientPlaylist.splice(index, 1);
+                renderizarPlaylistCliente();
+            }
+        }
+        function renderizarPlaylistCliente() {
+            const container = document.getElementById('clientPlaylistContainer'); container.innerHTML = '';
+            if(clientPlaylist.length === 0) { container.innerHTML = '<div style="text-align:center; color:#666; font-size:10px; padding:10px;">VAZIO</div>'; return; }
+            clientPlaylist.forEach((track, idx) => {
+                const div = document.createElement('div'); div.className = 'file-item';
+                div.innerHTML = `<span>${idx + 1}. ${track.name}</span> <button class="btn-trash" onclick="excluirMusicaCliente(${idx})">🗑️</button>`;
+                container.appendChild(div);
+            });
+        }
+
+        // --- PLAYER & RIGID DJBOB PROTOCOL ---
+        const audio = document.getElementById('audioEngine');
+
+        function togglePlay() {
+            const currentList = activeSource === 'SYSTEM' ? systemPlaylist : clientPlaylist;
+            if (currentList.length === 0) { alert(`Lista ${activeSource} vazia.`); return; }
+            
+            if (isPlaying) { 
+                audio.pause(); isPlaying = false; updateUI(false); 
+            } else { 
+                if (!audio.src || audio.ended) carregarFaixa(currentIndex); 
+                audio.play(); isPlaying = true; updateUI(true); 
+            }
+        }
+
+        function carregarFaixa(index) {
+            const currentList = activeSource === 'SYSTEM' ? systemPlaylist : clientPlaylist;
+            if (index >= currentList.length) index = 0;
+            currentIndex = index; 
+            const track = currentList[index];
+            audio.src = track.url;
+            document.getElementById('mainTrackName').innerText = track.name;
+            document.getElementById('mainTrackMeta').innerText = activeSource === 'SYSTEM' ? "SISTEMA" : "CLIENTE";
+            if (isPlaying) audio.play();
+        }
+
+        function updateUI(playing) {
+            document.getElementById('iconPlay').style.display = playing ? 'none' : 'block';
+            document.getElementById('iconPause').style.display = playing ? 'block' : 'none';
+        }
+
+        function atualizarVisualPlayer() {
+            const playCircle = document.getElementById('playCircle');
+            const iconPlay = document.querySelector('.play-icon');
+            
+            if (activeSource === 'SYSTEM') {
+                playCircle.style.borderColor = "#00ffcc"; 
+                iconPlay.style.fill = "#00ffcc";
+            } else {
+                playCircle.style.borderColor = "#ff00ff"; 
+                iconPlay.style.fill = "#ff00ff";
+            }
+        }
+
+        // --- LÓGICA RÍGIDA DJBOB ---
+        audio.addEventListener('ended', () => {
+            const currentList = activeSource === 'SYSTEM' ? systemPlaylist : clientPlaylist;
+            const currentTrackName = currentList[currentIndex].name.toLowerCase();
+
+            // 1. SE ESTAVA NO SISTEMA E TOCOU "DJBOB"
+            if (activeSource === 'SYSTEM' && currentTrackName.includes("djbob")) {
+                if (clientPlaylist.length > 0) {
+                    console.log("Protocolo DJBOB: Mudando para Cliente...");
+                    activeSource = 'CLIENT';
+                    currentIndex = 0;
+                    atualizarVisualPlayer();
+                    carregarFaixa(0);
+                    return;
+                }
+            }
+
+            // 2. SE ESTAVA NO CLIENTE E TERMINOU A LISTA
+            if (activeSource === 'CLIENT' && currentIndex === clientPlaylist.length - 1) {
+                console.log("Lista Cliente Fim: Voltando para Sistema...");
+                activeSource = 'SYSTEM';
+                currentIndex = 0; // Reset seguro para o sistema
+                atualizarVisualPlayer();
+                carregarFaixa(0);
+                return;
+            }
+
+            // 3. COMPORTAMENTO PADRÃO (PRÓXIMA FAIXA)
+            if (currentIndex < currentList.length - 1) {
+                carregarFaixa(currentIndex + 1);
+            } else {
+                // Fim da lista do sistema (Loop)
+                carregarFaixa(0);
+            }
+        });
+
+    </script>
+</body>
+</html>
