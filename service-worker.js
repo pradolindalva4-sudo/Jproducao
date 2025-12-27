@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dony-v24';
+const CACHE_NAME = 'JDP System-v24.o';
 const assets = ['./', './index.html', './manifest.json', 'https://i.ibb.co/vzNfVfM/dony-logo.jpg'];
 
 self.addEventListener('install', e => {
