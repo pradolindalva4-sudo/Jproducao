@@ -522,6 +522,64 @@
                 carregarFaixa(0);
             }
         });
+// --- JDP MASTER CONTROL V9 (FINAL): MEMÓRIA PERMANENTE ---
+
+const JDP_KEY_VIDEO = 'JDP_VIDEO_MUDO';
+const JDP_KEY_AUDIO = 'JDP_AUDIO_PLAY';
+
+// SALVA O VÍDEO NO DISCO INTERNO (Invisível e Permanente)
+function carregarAd(input) {
+    const file = input.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            localStorage.setItem(JDP_KEY_VIDEO, e.target.result);
+            alert("VÍDEO MUDO SALVO PERMANENTEMENTE!");
+            location.reload(); 
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+// SALVA O MP3 NO DISCO INTERNO (O Play nunca fica vazio)
+function carregarMusicas(input) {
+    const files = input.files;
+    let musicasCofre = [];
+    let contador = 0;
+
+    for (let i = 0; i < files.length; i++) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            musicasCofre.push({ name: files[i].name, url: e.target.result });
+            contador++;
+            if (contador === files.length) {
+                localStorage.setItem(JDP_KEY_AUDIO, JSON.stringify(musicasCofre));
+                alert("ÁUDIO DA PUBLICIDADE SALVO PERMANENTEMENTE!");
+                location.reload();
+            }
+        };
+        reader.readAsDataURL(files[i]);
+    }
+}
+
+// RESTAURA TUDO ASSIM QUE O CELULAR LIGA O APP
+window.addEventListener('load', function() {
+    const videoSalvo = localStorage.getItem(JDP_KEY_VIDEO);
+    const videoTag = document.getElementById('adVideoPlayer');
+    if (videoSalvo && videoTag) {
+        videoTag.src = videoSalvo;
+        videoTag.muted = true; // Continua sendo o vídeo mudo de fundo
+        videoTag.play();
+    }
+
+    const audioSalvo = localStorage.getItem(JDP_KEY_AUDIO);
+    if (audioSalvo) {
+        systemPlaylist = JSON.parse(audioSalvo);
+        if (typeof carregarFaixa === "function" && systemPlaylist.length > 0) {
+            carregarFaixa(0); // Deixa o Play engatilhado com a sua música
+        }
+    }
+});
 
     </script>
 </body>
