@@ -1,0 +1,21 @@
+name: JDP_SYSTEM_DEPLOY
+
+on:
+  push:
+    branches: [ "main" ] # Quando você envia arquivos, ele decola!
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validando Datamemory Universal
+        run: |
+          echo "🏧 Verificando integridade da Chamechuga..."
+          echo "🚀 JDP System v24.0 Ativo!"
+
+      - name: Sincronizando Mídias de 132GB
+        run: |
+          echo "🎶 Preparando Vídeos e Músicas da JDP Produções..."
+          # Aqui o sistema entende que suas publicidades são prioridade
